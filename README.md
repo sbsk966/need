@@ -1,6 +1,8 @@
-# need
+<p align="center">
+  <img src="assets/logo.svg" alt="need" width="400" />
+</p>
 
-> Find the right CLI tool in plain English.
+<p align="center">Find the right CLI tool in plain English.</p>
 
 AI agents hallucinate package names. Developers waste time Googling. `need` fixes both — semantic search across 6,000+ CLI tools, with an MCP server so AI agents can discover and install tools autonomously.
 

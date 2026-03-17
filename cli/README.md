@@ -1,6 +1,8 @@
-# need
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tuckerschreiber/need/main/assets/logo.svg" alt="need" width="400" />
+</p>
 
-> Discover the right CLI tool for any task using plain English.
+<p align="center">Discover the right CLI tool for any task using plain English.</p>
 
 Semantic search across 6,000+ CLI tools. Works standalone or as an MCP server for AI coding agents.
 
