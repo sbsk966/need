@@ -27,7 +27,7 @@ export class NeedApiClient {
     return res.json() as Promise<SearchResponse>;
   }
 
-  async reportSignal(toolId: number, success: boolean, queryText?: string): Promise<void> {
+  async reportSignal(toolId: number, success: boolean, queryText?: string, commandRan?: string, context?: string): Promise<void> {
     const res = await fetch(new URL('/signal', this.baseUrl).toString(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -36,6 +36,8 @@ export class NeedApiClient {
         success,
         query_text: queryText,
         agent_type: 'cli',
+        command_ran: commandRan,
+        context: context,
       }),
     });
 

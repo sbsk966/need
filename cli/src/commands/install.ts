@@ -40,6 +40,13 @@ export async function installCommand(query: string): Promise<void> {
   try {
     execSync(tool.install_command, { stdio: 'inherit' });
     console.log(`\n  Installed ${tool.name} successfully.\n`);
+    if (tool.usage_examples && tool.usage_examples.length > 0) {
+      console.log('  Try this:');
+      tool.usage_examples.slice(0, 2).forEach((ex) => {
+        console.log(`    ${ex.command}  # ${ex.description}`);
+      });
+      console.log('');
+    }
     try { await client.reportSignal(tool.id, true, query); } catch { /* best-effort */ }
   } catch {
     console.error(`\n  Failed to install ${tool.name}.\n`);

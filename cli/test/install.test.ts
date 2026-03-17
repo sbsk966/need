@@ -36,11 +36,14 @@ function getMockClient() {
 
 const baseTool = {
   description: 'A tool',
+  short_description: null,
   install_command: 'brew install tool',
   package_manager: 'brew',
   platform: ['macos'],
   category: null,
   source_url: null,
+  binaries: [],
+  usage_examples: [],
   similarity: 0.9,
   success_rate: 0.8,
   use_count: 100,
@@ -147,5 +150,28 @@ describe('installCommand', () => {
     expect(execSync).toHaveBeenCalledWith('brew install badtool', { stdio: 'inherit' });
     expect(mockClient.reportSignal).toHaveBeenCalledWith(3, false, 'bad tool');
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to install badtool'));
+  });
+
+  it('shows usage example after successful install', async () => {
+    mockClient.search.mockResolvedValue({
+      results: [
+        {
+          ...baseTool,
+          id: 1,
+          name: 'poppler',
+          install_command: 'brew install poppler',
+          usage_examples: [
+            { description: 'Convert PDF to PNG', command: 'pdftoppm -png input.pdf output' },
+          ],
+        },
+      ],
+      query: 'convert pdf to png',
+    });
+    mockReadlineAnswer('1');
+    vi.mocked(execSync).mockReturnValue(Buffer.from(''));
+
+    await installCommand('convert pdf to png');
+
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('pdftoppm -png input.pdf output'));
   });
 });

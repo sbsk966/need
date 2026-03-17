@@ -30,10 +30,20 @@ export async function serveCommand(): Promise<void> {
         }
 
         const text = results
-          .map(
-            (t, i) =>
-              `${i + 1}. **${t.name}** (id: ${t.id}) — ${t.description}\n   Install: \`${t.install_command}\`\n   Success rate: ${Math.round(t.success_rate * 100)}% (${t.use_count} uses)`
-          )
+          .map((t, i) => {
+            let entry = `${i + 1}. **${t.name}** (id: ${t.id}) — ${t.short_description || t.description}\n   Install: \`${t.install_command}\``;
+
+            if (t.usage_examples && t.usage_examples.length > 0) {
+              const examples = t.usage_examples
+                .slice(0, 3)
+                .map((ex) => `   - \`${ex.command}\` — ${ex.description}`)
+                .join('\n');
+              entry += '\n   Usage:\n' + examples;
+            }
+
+            entry += `\n   Success rate: ${Math.round(t.success_rate * 100)}% (${t.use_count} uses)`;
+            return entry;
+          })
           .join('\n\n');
 
         const footer = '\n\n---\n\u{1F4A1} Use report_tool_usage with the tool id to report whether a tool worked.';
@@ -48,15 +58,17 @@ export async function serveCommand(): Promise<void> {
 
   server.tool(
     'report_tool_usage',
-    'Report whether a discovered tool worked for your task',
+    'Report whether a discovered tool worked for your task. Include the command you ran for better future recommendations.',
     {
       tool_id: z.number().describe('The tool ID from search results'),
       success: z.boolean().describe('Whether the tool worked'),
       query_text: z.string().optional().describe('The original search query'),
+      command_ran: z.string().optional().describe('The actual command that was executed'),
+      context: z.string().optional().describe('What task you were trying to accomplish'),
     },
-    async ({ tool_id, success, query_text }) => {
+    async ({ tool_id, success, query_text, command_ran, context }) => {
       try {
-        await client.reportSignal(tool_id, success, query_text);
+        await client.reportSignal(tool_id, success, query_text, command_ran, context);
         return {
           content: [{ type: 'text' as const, text: `Signal recorded: ${success ? 'success' : 'failure'} for tool ${tool_id}` }],
         };
