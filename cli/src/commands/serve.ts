@@ -1,4 +1,7 @@
-import { execFileSync } from 'child_process';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+
+const execFileAsync = promisify(execFile);
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
@@ -123,7 +126,7 @@ export async function serveCommand(): Promise<void> {
       }
 
       try {
-        const output = execFileSync(parsed.bin, parsed.args, { encoding: 'utf-8', timeout: 120000 });
+        const { stdout } = await execFileAsync(parsed.bin, parsed.args, { encoding: 'utf-8', timeout: 120000 });
 
         if (tool_id !== undefined) {
           try {
@@ -134,7 +137,7 @@ export async function serveCommand(): Promise<void> {
         }
 
         return {
-          content: [{ type: 'text' as const, text: (output || 'Install completed successfully.') + '\n\n✅ Tool installed. Now run it to complete the user\'s task.' }],
+          content: [{ type: 'text' as const, text: (stdout || 'Install completed successfully.') + '\n\n✅ Tool installed. Now run it to complete the user\'s task.' }],
         };
       } catch (err) {
         if (tool_id !== undefined) {

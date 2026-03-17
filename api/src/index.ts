@@ -8,17 +8,36 @@ type Bindings = {
   OPENAI_API_KEY: string;
 };
 
+function safeErrorMessage(err: unknown): string {
+  if (err instanceof Error) {
+    console.error(err);
+  }
+  return 'Internal server error';
+}
+
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.use('*', cors());
 
+// Security headers
+app.use('*', async (c, next) => {
+  await next();
+  c.res.headers.set('X-Content-Type-Options', 'nosniff');
+  c.res.headers.set('X-Frame-Options', 'DENY');
+  c.res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  c.res.headers.set(
+    'Strict-Transport-Security',
+    'max-age=63072000; includeSubDomains; preload'
+  );
+});
+
 app.get('/', (c) => c.json({ name: 'need-api', version: '0.1.0' }));
 
 app.get('/search', async (c) => {
-  const query = c.req.query('q');
+  const query = c.req.query('q')?.slice(0, 500);
   if (!query) return c.json({ error: 'Missing query parameter: q' }, 400);
 
-  const limit = parseInt(c.req.query('limit') ?? '10', 10);
+  const limit = Math.min(Math.max(parseInt(c.req.query('limit') ?? '10', 10) || 10, 1), 50);
 
   try {
     const db = createDb(c.env.DATABASE_URL);
@@ -48,8 +67,7 @@ app.get('/search', async (c) => {
 
     return c.json({ results: finalResults, query });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return c.json({ error: message }, 500);
+    return c.json({ error: safeErrorMessage(err) }, 500);
   }
 });
 
@@ -69,11 +87,17 @@ app.post('/signal', async (c) => {
 
   try {
     const db = createDb(c.env.DATABASE_URL);
-    await db.insertSignal(body.tool_id, body.success, body.query_text, body.agent_type, body.command_ran, body.context);
+    await db.insertSignal(
+      body.tool_id,
+      body.success,
+      body.query_text?.slice(0, 500),
+      body.agent_type?.slice(0, 50),
+      body.command_ran?.slice(0, 500),
+      body.context?.slice(0, 1000),
+    );
     return c.json({ ok: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return c.json({ error: message }, 500);
+    return c.json({ error: safeErrorMessage(err) }, 500);
   }
 });
 
@@ -83,23 +107,21 @@ app.get('/categories', async (c) => {
     const categories = await db.getCategories();
     return c.json({ categories });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return c.json({ error: message }, 500);
+    return c.json({ error: safeErrorMessage(err) }, 500);
   }
 });
 
 app.get('/tools', async (c) => {
-  const category = c.req.query('category');
-  const limit = parseInt(c.req.query('limit') ?? '50', 10);
-  const offset = parseInt(c.req.query('offset') ?? '0', 10);
+  const category = c.req.query('category')?.slice(0, 100);
+  const limit = Math.min(Math.max(parseInt(c.req.query('limit') ?? '50', 10) || 50, 1), 100);
+  const offset = Math.max(parseInt(c.req.query('offset') ?? '0', 10) || 0, 0);
 
   try {
     const db = createDb(c.env.DATABASE_URL);
     const { tools, total } = await db.listTools({ category: category || undefined, limit, offset });
     return c.json({ tools, total, limit, offset });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return c.json({ error: message }, 500);
+    return c.json({ error: safeErrorMessage(err) }, 500);
   }
 });
 
@@ -111,8 +133,7 @@ app.get('/tools/:name', async (c) => {
     if (!tool) return c.json({ error: 'Tool not found' }, 404);
     return c.json(tool);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return c.json({ error: message }, 500);
+    return c.json({ error: safeErrorMessage(err) }, 500);
   }
 });
 

@@ -63,16 +63,13 @@ export function createDb(databaseUrl: string) {
       const limit = options.limit ?? 50;
       const offset = options.offset ?? 0;
 
-      const countResult = options.category
-        ? await sql`SELECT COUNT(*)::int as count FROM tools WHERE category = ${options.category}`
-        : await sql`SELECT COUNT(*)::int as count FROM tools`;
-
       const results = options.category
         ? await sql`
             SELECT id, name, description, short_description, install_command,
                    package_manager, platform, category, source_url, binaries,
                    usage_examples,
-                   0 as similarity, 0.5 as success_rate, 0 as use_count
+                   0 as similarity, 0.5 as success_rate, 0 as use_count,
+                   COUNT(*) OVER()::int AS total_count
             FROM tools
             WHERE category = ${options.category}
             ORDER BY name ASC
@@ -82,13 +79,15 @@ export function createDb(databaseUrl: string) {
             SELECT id, name, description, short_description, install_command,
                    package_manager, platform, category, source_url, binaries,
                    usage_examples,
-                   0 as similarity, 0.5 as success_rate, 0 as use_count
+                   0 as similarity, 0.5 as success_rate, 0 as use_count,
+                   COUNT(*) OVER()::int AS total_count
             FROM tools
             ORDER BY name ASC
             LIMIT ${limit} OFFSET ${offset}
           `;
 
-      return { tools: results as SearchResult[], total: countResult[0].count };
+      const total = results.length > 0 ? (results[0] as any).total_count : 0;
+      return { tools: results as SearchResult[], total };
     },
 
     async getCategories(): Promise<Array<{ category: string; count: number }>> {

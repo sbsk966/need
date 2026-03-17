@@ -74,11 +74,10 @@ async function seed() {
     console.log(`Embedding batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(tools.length / BATCH_SIZE)}...`);
     const embeddings = await getEmbeddings(texts);
 
-    for (let j = 0; j < batch.length; j++) {
-      const tool = batch[j];
-      const embedding = JSON.stringify(embeddings[j]);
-      try {
-        await sql`
+    const results = await Promise.allSettled(
+      batch.map((tool, j) => {
+        const embedding = JSON.stringify(embeddings[j]);
+        return sql`
           INSERT INTO tools (name, description, install_command, package_manager, platform, source_url, embedding)
           VALUES (${tool.name}, ${tool.description}, ${tool.install_command}, ${tool.package_manager}, ${['macos', 'linux']}, ${tool.source_url}, ${embedding}::vector(1536))
           ON CONFLICT (name, package_manager) DO UPDATE SET
@@ -87,14 +86,15 @@ async function seed() {
             source_url = EXCLUDED.source_url,
             embedding = EXCLUDED.embedding
         `;
-        inserted++;
-      } catch (err) {
-        console.error(`Error inserting ${tool.name}:`, err);
-      }
+      })
+    );
+
+    for (const r of results) {
+      if (r.status === 'fulfilled') inserted++;
+      else console.error('Insert failed:', r.reason);
     }
 
     console.log(`Inserted ${inserted}/${tools.length}`);
-    await new Promise((r) => setTimeout(r, 200));
   }
 
   console.log(`\nDone! Seeded ${inserted} tools.`);
