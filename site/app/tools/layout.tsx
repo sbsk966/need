@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Navbar, NavbarLeft, NavbarRight } from "@/components/ui/navbar";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/ui/logo";
 import { GithubIcon } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
@@ -12,9 +11,8 @@ export default function ToolsLayout({ children }: { children: React.ReactNode })
         <div className="mx-auto max-w-4xl">
           <Navbar>
             <NavbarLeft>
-              <Link href="/" className="flex items-center gap-2">
-                <Logo className="size-5" />
-                <span className="font-semibold">need</span>
+              <Link href="/" className="font-mono font-semibold">
+                need
               </Link>
               <Link href="/tools" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
                 Browse
