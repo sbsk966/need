@@ -6,4 +6,5 @@ dist/
 .dev.vars
 .claude/
 docs/
+site/
 supabase/
