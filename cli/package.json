@@ -1,6 +1,6 @@
 {
   "name": "@agentneeds/need",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Discover the right CLI tool for any task using plain English",
   "type": "module",
   "license": "MIT",
@@ -22,7 +22,8 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "postinstall": "node ./dist/postinstall.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",

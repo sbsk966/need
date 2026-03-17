@@ -12,6 +12,8 @@ Semantic search across 6,000+ CLI tools. Works standalone or as an MCP server fo
 npm install -g @agentneeds/need
 ```
 
+That's it. MCP servers are automatically configured for **Claude Code**, **Cursor**, and **Claude Desktop** on install. Your AI tools can immediately discover and install CLI tools.
+
 Or run directly: `npx @agentneeds/need "compress png images"`
 
 ## Commands
@@ -41,15 +43,25 @@ need report jq --success
 need report sometool --fail
 ```
 
+### Project integration
+
+Add `need` instructions to your project so AI tools use it automatically:
+
+```bash
+need init
+```
+
+Generates config files for Claude Code, Cursor, GitHub Copilot, and Windsurf.
+
 ### MCP setup
 
-Configure `need` as an MCP server for your AI tools:
+Manually configure MCP servers (already done automatically on install):
 
 ```bash
 need setup
 ```
 
-Supports **Claude Code** and **Cursor**. After setup, your AI agent can discover, install, and report on tools autonomously.
+Supports **Claude Code**, **Cursor**, and **Claude Desktop**.
 
 ### MCP server
 
