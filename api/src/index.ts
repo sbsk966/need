@@ -22,12 +22,31 @@ app.get('/search', async (c) => {
 
   try {
     const db = createDb(c.env.DATABASE_URL);
+
+    // Check for exact name match first
+    const exactMatch = await db.getToolByName(query.toLowerCase());
+
+    // If exact match, return just that tool (single-word queries are likely exact lookups)
+    if (exactMatch && !query.includes(' ')) {
+      db.logQuery(query, 1).catch(() => {});
+      return c.json({ results: [exactMatch], query });
+    }
+
     const embedding = await getEmbedding(query, { apiKey: c.env.OPENAI_API_KEY });
     const results = await db.searchTools(embedding, limit);
 
-    db.logQuery(query, results.length).catch(() => {});
+    // If there's an exact match, put it first and deduplicate
+    let finalResults = results;
+    if (exactMatch) {
+      finalResults = [
+        exactMatch,
+        ...results.filter((r) => r.name !== exactMatch.name),
+      ].slice(0, limit);
+    }
 
-    return c.json({ results, query });
+    db.logQuery(query, finalResults.length).catch(() => {});
+
+    return c.json({ results: finalResults, query });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     return c.json({ error: message }, 500);

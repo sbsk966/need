@@ -25,7 +25,7 @@ export function createDb(databaseUrl: string) {
       const results = await sql`
         SELECT * FROM search_tools(
           ${JSON.stringify(queryEmbedding)}::vector(1536),
-          0.3,
+          0.4,
           ${limit}
         )
       `;
@@ -53,7 +53,7 @@ export function createDb(databaseUrl: string) {
                usage_examples,
                0 as similarity, 0.5 as success_rate, 0 as use_count
         FROM tools
-        WHERE name = ${name}
+        WHERE lower(name) = lower(${name})
         LIMIT 1
       `;
       return (results[0] as SearchResult) ?? null;

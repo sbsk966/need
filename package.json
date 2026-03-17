@@ -1,5 +1,13 @@
 {
   "name": "need-monorepo",
   "private": true,
-  "workspaces": ["cli", "api", "site"]
+  "workspaces": [
+    "cli",
+    "api",
+    "site"
+  ],
+  "dependencies": {
+    "@agentneeds/need": "^0.1.0"
+  },
+  "version": "0.0.1"
 }
