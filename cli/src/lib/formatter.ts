@@ -7,11 +7,21 @@ export function formatResults(results: ToolResult[]): string {
 
   const lines = results.map((tool, i) => {
     const num = `  ${i + 1}.`;
-    const name = tool.name;
-    const rate = `${Math.round(tool.success_rate * 100)}% success`;
-    const uses = tool.use_count > 0 ? `  ${formatCount(tool.use_count)} uses` : '';
 
-    let block = `${num} ${name}\n     ${tool.install_command}    ${rate}${uses}`;
+    // Social proof line — only show what we have real data for
+    const parts: string[] = [];
+    if (tool.github_stars > 0) {
+      parts.push(`★ ${formatCount(tool.github_stars)} stars`);
+    }
+    if (tool.use_count >= 10) {
+      parts.push(`${Math.round(tool.success_rate * 100)}% success`);
+      parts.push(`${formatCount(tool.use_count)} agent uses`);
+    }
+    const socialProof = parts.length > 0
+      ? `\n     ${parts.join(' · ')}`
+      : '';
+
+    let block = `${num} ${tool.name}\n     ${tool.install_command}${socialProof}`;
 
     if (tool.usage_examples && tool.usage_examples.length > 0) {
       const examples = tool.usage_examples
@@ -28,6 +38,9 @@ export function formatResults(results: ToolResult[]): string {
 }
 
 function formatCount(n: number): string {
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  if (n >= 1000) {
+    const k = n / 1000;
+    return `${k % 1 === 0 ? Math.round(k) : k.toFixed(1)}k`;
+  }
   return String(n);
 }
