@@ -27,6 +27,14 @@ export class NeedApiClient {
     return res.json() as Promise<SearchResponse>;
   }
 
+  async logInstallAsQuery(command: string): Promise<void> {
+    await fetch(new URL('/log-query', this.baseUrl).toString(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: `[direct install] ${command}`, results_count: 0 }),
+    }).catch(() => {}); // best-effort
+  }
+
   async reportSignal(toolId: number, success: boolean, queryText?: string, commandRan?: string, context?: string): Promise<void> {
     const res = await fetch(new URL('/signal', this.baseUrl).toString(), {
       method: 'POST',

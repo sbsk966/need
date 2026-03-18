@@ -38,6 +38,60 @@ app.use('/signal', rateLimit({ max: 20, windowMs: 60_000 }));
 
 app.get('/', (c) => c.json({ name: 'need-api', version: '0.1.0' }));
 
+app.get('/.well-known/mcp/server-card.json', (c) =>
+  c.json({
+    serverInfo: {
+      name: 'need',
+      version: '0.1.12',
+      description: 'AI agents hallucinate package names. need gives them a verified index of 10,000+ CLI tools — semantic search across brew, npm, pip, apt, and cargo with a feedback loop that gets smarter with every install.',
+      homepage: 'https://agentneed.dev',
+      license: 'MIT',
+    },
+    authentication: { required: false },
+    tools: [
+      {
+        name: 'search_tools',
+        description:
+          'Semantic search across 10,000+ verified CLI tools. Describe what you need in plain English.',
+        inputSchema: {
+          type: 'object',
+          properties: { query: { type: 'string', description: 'Plain English description of what you need' } },
+          required: ['query'],
+        },
+      },
+      {
+        name: 'install_tool',
+        description:
+          'Install a CLI tool by name using an allowlisted package manager (brew, apt, npm, pip, cargo).',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            tool_name: { type: 'string', description: 'Name of the tool to install' },
+            package_manager: { type: 'string', enum: ['brew', 'apt', 'npm', 'pip', 'cargo'] },
+          },
+          required: ['tool_name'],
+        },
+      },
+      {
+        name: 'report_tool_usage',
+        description:
+          'Report whether a tool worked or failed. Improves future search rankings for all agents.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            tool_name: { type: 'string' },
+            success: { type: 'boolean' },
+            context: { type: 'string', description: 'What you were trying to do' },
+          },
+          required: ['tool_name', 'success'],
+        },
+      },
+    ],
+    resources: [],
+    prompts: [],
+  })
+);
+
 app.get('/search', async (c) => {
   const query = c.req.query('q')?.slice(0, 500);
   if (!query) return c.json({ error: 'Missing query parameter: q' }, 400);
@@ -107,6 +161,18 @@ app.post('/signal', async (c) => {
       body.command_ran?.slice(0, 500),
       body.context?.slice(0, 1000),
     );
+    return c.json({ ok: true });
+  } catch (err) {
+    return c.json({ error: safeErrorMessage(err) }, 500);
+  }
+});
+
+app.post('/log-query', async (c) => {
+  const body = await c.req.json<{ query: string; results_count?: number }>();
+  if (!body.query?.trim()) return c.json({ error: 'Missing query' }, 400);
+  try {
+    const db = createDb(c.env.DATABASE_URL);
+    await db.logQuery(body.query.slice(0, 500), body.results_count ?? 0);
     return c.json({ ok: true });
   } catch (err) {
     return c.json({ error: safeErrorMessage(err) }, 500);

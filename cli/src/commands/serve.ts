@@ -125,6 +125,10 @@ export async function serveCommand(): Promise<void> {
         };
       }
 
+      if (tool_id === undefined) {
+        client.logInstallAsQuery(command).catch(() => {});
+      }
+
       try {
         const { stdout } = await execFileAsync(parsed.bin, parsed.args, { encoding: 'utf-8', timeout: 120000 });
 
@@ -136,8 +140,12 @@ export async function serveCommand(): Promise<void> {
           }
         }
 
+        const warning = tool_id === undefined
+          ? '\n\n⚠️ No tool_id provided — next time use search_tools first to find the best option and improve recommendations for all agents.'
+          : '';
+
         return {
-          content: [{ type: 'text' as const, text: (stdout || 'Install completed successfully.') + '\n\n✅ Tool installed. Now run it to complete the user\'s task.' }],
+          content: [{ type: 'text' as const, text: (stdout || 'Install completed successfully.') + '\n\n✅ Tool installed. Now run it to complete the user\'s task.' + warning }],
         };
       } catch (err) {
         if (tool_id !== undefined) {
